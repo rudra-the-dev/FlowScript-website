@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn FlowScript — Interactive Lessons</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --bg-2: #0f0f1a;
+  --bg-3: #141428;
+  --bg-card: #0d0d1f;
+  --border: #1e1e3a;
+  --border-2: #2a2a50;
+  --accent: #6c63ff;
+  --green: #43e6b5;
+  --red: #ff6584;
+  --yellow: #ffd166;
+  --purple: #c77dff;
+  --text: #e8e8ff;
+  --text-2: #8888bb;
+  --text-3: #444466;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cabinet Grotesk', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: none;
+}
+
+#cursor {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: screen;
+}
+
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: all 0.15s ease;
+  opacity: 0.4;
+}
+
+nav {
+  height: 52px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.nav-logo {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-dot {
+  width: 7px; height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-progress {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.nav-back {
+  font-size: 13px;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav-back:hover { color: var(--accent); }
+
+.app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  overflow: hidden;
+}
+
+.sidebar {
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 8px 12px 4px;
+}
+
+.lesson-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: none;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  font-family: 'Cabinet Grotesk', sans-serif;
+}
+
+.lesson-btn:hover {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+.lesson-btn.active {
+  background: var(--bg-card);
+  border-color: var(--accent);
+}
+
+.lesson-num {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.lesson-btn.active .lesson-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.lesson-btn.done .lesson-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+
+.lesson-info { flex: 1; min-width: 0; }
+
+.lesson-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition: color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-btn.active .lesson-name { color: var(--text); }
+
+.lesson-tag-small {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lesson-header {
+  padding: 28px 32px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.lesson-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.lesson-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.lesson-desc {
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.7;
+  max-width: 640px;
+}
+
+.editor-area {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.panel-header {
+  height: 38px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.panel-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.run-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 5px 16px;
+  border-radius: 6px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.15s;
+}
+
+.run-btn:hover { background: #8b85ff; }
+
+#l-editor {
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text);
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  padding: 18px;
+  caret-color: var(--accent);
+  tab-size: 4;
+}
+
+#l-editor::selection { background: rgba(108,99,255,0.2); }
+
+.output-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+#l-output {
+  flex: 1;
+  padding: 18px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.out-empty {
+  color: var(--text-3);
+  margin: auto;
+  text-align: center;
+  font-size: 13px;
+  line-height: 2;
+}
+
+.out-line { display: flex; gap: 10px; animation: fadeIn 0.1s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.out-arrow { color: var(--text-3); flex-shrink: 0; }
+.out-text { color: var(--green); }
+.out-error { color: var(--red); }
+.out-warn { color: var(--yellow); }
+
+.lesson-footer {
+  height: 60px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  flex-shrink: 0;
+}
+
+.challenge-text {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.challenge-text strong { color: var(--yellow); }
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#l-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.next-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.15s;
+}
+
+.next-btn:hover:not(:disabled) {
+  background: #8b85ff;
+  transform: translateY(-1px);
+}
+
+.next-btn:disabled {
+  background: var(--bg-3);
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.progress-bar {
+  height: 2px;
+  background: var(--border);
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+@media (max-width: 768px) {
+  body { overflow: auto; cursor: auto; }
+  #cursor, #cursor-ring { display: none; }
+
+  .app {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    overflow: visible;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-label { display: none; }
+
+  .lesson-btn {
+    padding: 8px 12px;
+    flex: none;
+    width: auto;
+  }
+
+  .lesson-info { display: none; }
+
+  .main { overflow: visible; }
+
+  .lesson-header { padding: 20px; }
+
+  .lesson-title { font-size: 22px; }
+
+  .editor-area {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .editor-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #l-editor { min-height: 200px; }
+
+  #l-output { min-height: 180px; }
+
+  .lesson-footer {
+    height: auto;
+    padding: 16px 20px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="icon.svg" width="32" height="32" style="border-radius:8px;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="nav-dot" style="display:none"></div>
+    FlowScript
+  </a>
+  <div class="nav-right">
+    <span class="nav-progress" id="nav-progress">Lesson 1 of 7</span>
+    <a href="index.html" class="nav-back">← Back to docs</a>
+  </div>
+</nav>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progress-fill" style="width: 14%"></div>
+</div>
+
+<div class="app">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-label">Lessons</div>
+  </div>
+
+  <div class="main">
+    <div class="lesson-header">
+      <div class="lesson-label" id="l-tag">Lesson 1</div>
+      <div class="lesson-title" id="l-title"></div>
+      <div class="lesson-desc" id="l-desc"></div>
+    </div>
+
+    <div class="editor-area">
+      <div class="editor-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <div class="panel-dot"></div>
+            editor
+          </div>
+          <button class="run-btn" onclick="runLesson()">RUN</button>
+        </div>
+        <textarea id="l-editor" spellcheck="false"></textarea>
+      </div>
+
+      <div class="output-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <div class="panel-dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+            output
+          </div>
+          <span id="l-status" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3)">ready</span>
+        </div>
+        <div id="l-output">
+          <div class="out-empty">Press RUN to see output</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson-footer">
+      <div class="challenge-text" id="l-challenge"></div>
+      <div class="footer-right">
+        <button class="next-btn" id="next-btn" onclick="nextLesson()">Next Lesson →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const lessons = [
+  {
+    tag: "Lesson 1",
+    title: "Output — say",
+    desc: "Every FlowScript program starts with say. It prints anything you put after it. Text goes inside double quotes. Try running the code — then modify it.",
+    code: `say "Hello World"\nsay "I am learning FlowScript"\nsay "This is plain English code"`,
+    challenge: "Add a 4th say line that prints your name.",
+    validate: (code, output) => {
+      const sayLines = code.split('\n').filter(l => l.trim().toLowerCase().startsWith('say '));
+      if (sayLines.length < 4) return { pass: false, hint: "You need at least 4 say lines. Add one more!" };
+      return { pass: true };
+    }
+  },
+  {
+    tag: "Lesson 2",
+    title: "Input — ask",
+    desc: "Use ask to get input from the user. Save their answer to a variable using single quotes around the variable name. Then use say to print it back.",
+    code: `ask "What is your name?" and save to 'name'\nsay 'name'\n\nask "How old are you?" and save to 'age'\nsay 'age'\n\nsay "Nice to meet you"`,
+    challenge: "Add a new ask that asks for their favourite colour and prints it back.",
+    validate: (code, output) => {
+      const askLines = code.split('\n').filter(l => l.trim().toLowerCase().startsWith('ask '));
+      if (askLines.length < 3) return { pass: false, hint: "Add a 3rd ask question about their favourite colour." };
+      const hasColour = code.toLowerCase().includes('colour') || code.toLowerCase().includes('color') || code.toLowerCase().includes('favourite');
+      if (!hasColour) return { pass: false, hint: "Make sure you ask about their favourite colour." };
+      return { pass: true };
+    }
+  },
+  {
+    tag: "Lesson 3",
+    title: "Variables",
+    desc: "Variables store values. Use single quotes around variable names. Create them with create a number called, then update them with set.",
+    code: `create a number called 'age' with value 18\nsay 'age'\n\nset 'age' to 21\nsay 'age'\n\ncreate a number called 'score' with value 100\nsay 'score'`,
+    challenge: "Create a variable called 'year' with value 2026 and print it.",
+    validate: (code, output) => {
+      if (!code.toLowerCase().includes("called 'year'")) return { pass: false, hint: "Create a variable called 'year'." };
+      if (!code.includes('2026')) return { pass: false, hint: "Give 'year' the value 2026." };
+      const hasYear = output.some(o => o.text === '2026');
+      if (!hasYear) return { pass: false, hint: "Make sure you say 'year' to print it." };
+      return { pass: true };
+    }
+  },
+  {
+    tag: "Lesson 4",
+    title: "Math",
+    desc: "FlowScript does math using plain English. Add, subtract, multiply and divide all work on variables. The result is saved back to the same variable.",
+    code: `create a number called 'points' with value 10\n\nadd 5 to 'points'\nsay 'points'\n\nmultiply 'points' by 2\nsay 'points'\n\nsubtract 3 from 'points'\nsay 'points'\n\ndivide 'points' by 2\nsay 'points'`,
+    challenge: "Start with 100, subtract 25, then divide by 5. Print the result — it should be 15.",
+    validate: (code, output) => {
+      if (!code.includes('100')) return { pass: false, hint: "Start with a variable set to 100." };
+      if (!code.toLowerCase().includes('subtract')) return { pass: false, hint: "Use subtract to subtract 25." };
+      if (!code.toLowerCase().includes('divide')) return { pass: false, hint: "Use divide to divide by 5." };
+      const has15 = output.some(o => o.text === '15');
+      if (!has15) return { pass: false, hint: "The final result should be 15. Check your math!" };
+      return { pass: true };
+    }
+  },
+  {
+    tag: "Lesson 5",
+    title: "Conditions",
+    desc: "Use if, elif and else to make decisions. Always close with end. Comparisons use plain English like is greater than or equals.",
+    code: `create a number called 'score' with value 75\n\nif 'score' is greater than 90\n    say "Grade A"\nelif 'score' is greater than 80\n    say "Grade B"\nelif 'score' is greater than 70\n    say "Grade C"\nelse:\n    say "Grade F"\nend`,
+    challenge: "Change the score to 95 and run again. You should get Grade A.",
+    validate: (code, output) => {
+      if (!code.includes('95')) return { pass: false, hint: "Change the score value to 95." };
+      const hasA = output.some(o => o.text.includes('Grade A'));
+      if (!hasA) return { pass: false, hint: "With score 95 you should see Grade A in the output." };
+      return { pass: true };
+    }
+  },
+  {
+    tag: "Lesson 6",
+    title: "Loops",
+    desc: "repeat runs a command multiple times. Combine it with variables to count or build patterns.",
+    code: `repeat 5 times say "FlowScript is awesome"\n\ncreate a number called 'count' with value 1\nrepeat 3 times say 'count'\nadd 1 to 'count'`,
+    challenge: "Make it print your name 10 times using repeat.",
+    validate: (code, output) => {
+      const repeatLines = code.split('\n').filter(l => l.trim().toLowerCase().startsWith('repeat'));
+      const has10 = repeatLines.some(l => l.includes('10'));
+      if (!has10) return { pass: false, hint: "Use repeat 10 times to print something 10 times." };
+      const sayCount = output.filter(o => o.type === 'out').length;
+      if (sayCount < 10) return { pass: false, hint: `Only ${sayCount} lines printed. You need at least 10.` };
+      return { pass: true };
+    }
+  },
+  {
+    tag: "Lesson 7",
+    title: "Automation",
+    desc: "This is where FlowScript becomes powerful. On the Android app these commands control your phone using AI vision. Install the app to run real automations.",
+    code: `say "FlowScript can automate your phone"\nsay ""\nsay "Examples of what the app can do:"\nsay "- Open WhatsApp and send a message"\nsay "- Search YouTube automatically"\nsay "- Schedule tasks to run at 8am"\nsay "- Notify you when battery is low"\nsay ""\nsay "Install the app to try it for real!"`,
+    challenge: "You finished all 7 lessons! Run the code and download the app.",
+    validate: (code, output) => {
+      if (output.length > 0) return { pass: true };
+      return { pass: false, hint: "Just press RUN to complete this lesson!" };
+    }
+  }
+];
+
+let current = 0;
+const completed = new Set();
+
+class Interpreter {
+  constructor() { this.variables = {}; this.output = []; }
+
+  run(code) {
+    this.output = [];
+    const lines = code.split('\n');
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (!line || line.startsWith('#')) { i++; continue; }
+      const lower = line.toLowerCase();
+      if (lower.startsWith('if ')) {
+        const block = { branches: [] };
+        const condition = line.slice(3).trim();
+        i++;
+        let body = [];
+        while (i < lines.length) {
+          const p = lines[i].trim();
+          const pl = p.toLowerCase();
+          if (pl.startsWith('elif ') || pl === 'else:' || pl.startsWith('end')) break;
+          if (p && !p.startsWith('#')) body.push(p);
+          i++;
+        }
+        block.branches.push({ condition, body });
+        while (i < lines.length && lines[i].trim().toLowerCase().startsWith('elif ')) {
+          const elifLine = lines[i].trim();
+          const elifCond = elifLine.slice(5).trim();
+          i++;
+          body = [];
+          while (i < lines.length) {
+            const p = lines[i].trim();
+            const pl = p.toLowerCase();
+            if (pl.startsWith('elif ') || pl === 'else:' || pl.startsWith('end')) break;
+            if (p && !p.startsWith('#')) body.push(p);
+            i++;
+          }
+          block.branches.push({ condition: elifCond, body });
+        }
+        if (i < lines.length && lines[i].trim().toLowerCase() === 'else:') {
+          i++;
+          body = [];
+          while (i < lines.length) {
+            const p = lines[i].trim();
+            if (p.toLowerCase().startsWith('end')) break;
+            if (p && !p.startsWith('#')) body.push(p);
+            i++;
+          }
+          block.branches.push({ condition: null, body });
+        }
+        if (i < lines.length && lines[i].trim().toLowerCase().startsWith('end')) i++;
+        this.executeIfBlock(block.branches);
+        continue;
+      }
+      this.executeLine(line);
+      i++;
+    }
+    return this.output;
+  }
+
+  executeLine(line) {
+    const lower = line.toLowerCase();
+    const parts = line.split(/\s+/);
+    if (lower.startsWith('say ')) {
+      const val = this.resolve(line.slice(4).trim());
+      this.output.push({ type: 'out', text: String(val ?? '') });
+    } else if (lower.startsWith('create a') && lower.includes('called')) {
+      const m = line.match(/called\s+'([^']+)'/i);
+      if (!m) return;
+      const vm = line.match(/with value\s+(\S+)/i);
+      this.variables[m[1]] = vm ? this.tryNum(this.resolve(vm[1])) : null;
+    } else if (lower.startsWith('set ') && lower.includes(' to ')) {
+      const name = parts[1].replace(/'/g, '');
+      this.variables[name] = this.tryNum(this.resolve(parts.slice(3).join(' ')));
+    } else if (lower.startsWith('add ') && lower.includes(' to ')) {
+      const amount = parseFloat(this.resolve(parts[1]));
+      const name = parts[3].replace(/'/g, '');
+      this.variables[name] = (parseFloat(this.variables[name] ?? 0)) + amount;
+      this.clean(name);
+    } else if (lower.startsWith('subtract ') && lower.includes(' from ')) {
+      const amount = parseFloat(this.resolve(parts[1]));
+      const name = parts[3].replace(/'/g, '');
+      this.variables[name] = (parseFloat(this.variables[name] ?? 0)) - amount;
+      this.clean(name);
+    } else if (lower.startsWith('multiply ') && lower.includes(' by ')) {
+      const name = parts[1].replace(/'/g, '');
+      const factor = parseFloat(this.resolve(parts[3]));
+      this.variables[name] = (parseFloat(this.variables[name] ?? 0)) * factor;
+      this.clean(name);
+    } else if (lower.startsWith('divide ') && lower.includes(' by ')) {
+      const name = parts[1].replace(/'/g, '');
+      const div = parseFloat(this.resolve(parts[3]));
+      if (div === 0) { this.output.push({ type: 'error', text: 'Cannot divide by zero' }); return; }
+      this.variables[name] = (parseFloat(this.variables[name] ?? 0)) / div;
+      this.clean(name);
+    } else if (lower.startsWith('repeat ') && lower.includes(' times ')) {
+      const count = parseInt(this.resolve(parts[1].replace(/'/g, '')));
+      const action = line.split(/ times /i).slice(1).join(' times ').trim();
+      for (let i = 0; i < count; i++) this.executeLine(action);
+    } else if (lower.startsWith('ask ') && lower.includes('save to')) {
+      const splitQ = line.split(/save to/i);
+      const question = splitQ[0].slice(4).trim().replace(/ and$/i, '').trim().replace(/^"|"$/g, '');
+      const varName = splitQ[1].trim().replace(/'/g, '');
+      const answer = prompt(question) || '';
+      this.output.push({ type: 'out', text: `${question} → ${answer}` });
+      this.variables[varName] = answer;
+    } else {
+      this.output.push({ type: 'warn', text: `Unknown: "${line}"` });
+    }
+  }
+
+  executeIfBlock(branches) {
+    for (const b of branches) {
+      if (b.condition === null) { this.runBody(b.body); return; }
+      if (this.evalCond(b.condition)) { this.runBody(b.body); return; }
+    }
+  }
+
+  runBody(lines) { for (const l of lines) { const t = l.trim(); if (t && !t.startsWith('#')) this.executeLine(t); } }
+
+  evalCond(cond) {
+    const parts = cond.split(/\s+/);
+    try {
+      if (/greater than/i.test(cond)) {
+        const idx = parts.findIndex(p => p.toLowerCase() === 'greater');
+        return parseFloat(this.resolve(parts[0])) > parseFloat(this.resolve(parts[idx + 2]));
+      }
+      if (/less than/i.test(cond)) {
+        const idx = parts.findIndex(p => p.toLowerCase() === 'less');
+        return parseFloat(this.resolve(parts[0])) < parseFloat(this.resolve(parts[idx + 2]));
+      }
+      if (/\bequals\b/i.test(cond)) {
+        const idx = parts.findIndex(p => p.toLowerCase() === 'equals');
+        return String(this.resolve(parts[0])) === String(this.resolve(parts[idx + 1]));
+      }
+      if (/\bis\b/i.test(cond)) {
+        const idx = parts.findIndex(p => p.toLowerCase() === 'is');
+        return String(this.resolve(parts[0])) === String(this.resolve(parts[idx + 1]));
+      }
+    } catch (e) { this.output.push({ type: 'error', text: `Condition error: ${e.message}` }); }
+    return false;
+  }
+
+  resolve(v) {
+    if (v === null || v === undefined) return null;
+    v = String(v).trim();
+    if (v.startsWith('"') && v.endsWith('"')) return v.slice(1, -1);
+    if (v.startsWith("'") && v.endsWith("'")) {
+      const n = v.slice(1, -1);
+      if (n in this.variables) return this.variables[n];
+      this.output.push({ type: 'error', text: `Variable '${n}' not found` });
+      return null;
+    }
+    if (!isNaN(v) && v !== '') return parseFloat(v);
+    if (v in this.variables) return this.variables[v];
+    return v;
+  }
+
+  tryNum(v) { const n = parseFloat(v); return (!isNaN(n) && String(v).trim() !== '') ? n : v; }
+  clean(name) { const v = this.variables[name]; if (typeof v === 'number' && Number.isInteger(v)) this.variables[name] = v; }
+}
+
+function loadLesson(idx) {
+  current = idx;
+  const l = lessons[idx];
+  document.getElementById('l-tag').textContent = l.tag;
+  document.getElementById('l-title').textContent = l.title;
+  document.getElementById('l-desc').textContent = l.desc;
+  document.getElementById('l-editor').value = l.code;
+  document.getElementById('l-challenge').innerHTML = `<strong>Challenge:</strong> ${l.challenge}`;
+  document.getElementById('l-output').innerHTML = '<div class="out-empty">Press RUN to see output</div>';
+  document.getElementById('l-status').textContent = 'ready';
+  document.getElementById('l-status').style.color = 'var(--text-3)';
+  document.getElementById('nav-progress').textContent = `Lesson ${idx + 1} of ${lessons.length}`;
+  document.getElementById('progress-fill').style.width = `${((idx + 1) / lessons.length) * 100}%`;
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Run code first';
+
+  if (idx === lessons.length - 1) {
+    nextBtn.onclick = () => window.open('https://github.com/yourusername/flowscript-app', '_blank');
+  } else {
+    nextBtn.onclick = nextLesson;
+  }
+
+  document.querySelectorAll('.lesson-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+
+  document.getElementById('l-editor').focus();
+}
+
+function nextLesson() {
+  completed.add(current);
+  document.querySelectorAll('.lesson-btn').forEach((btn, i) => {
+    if (completed.has(i)) btn.classList.add('done');
+  });
+  if (current < lessons.length - 1) loadLesson(current + 1);
+}
+
+function runLesson() {
+  const code = document.getElementById('l-editor').value.trim();
+  const outputEl = document.getElementById('l-output');
+  const status = document.getElementById('l-status');
+  outputEl.innerHTML = '';
+  let hasError = false;
+  let results = [];
+
+  try {
+    results = new Interpreter().run(code);
+    if (results.length === 0) {
+      outputEl.innerHTML = '<div class="out-empty">No output</div>';
+    } else {
+      results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'out-line';
+        const arrow = document.createElement('span');
+        arrow.className = 'out-arrow';
+        arrow.textContent = item.type === 'error' ? '✗' : '›';
+        const text = document.createElement('span');
+        text.className = item.type === 'out' ? 'out-text' : item.type === 'error' ? 'out-error' : 'out-warn';
+        text.textContent = item.text;
+        div.appendChild(arrow);
+        div.appendChild(text);
+        outputEl.appendChild(div);
+        if (item.type === 'error') hasError = true;
+      });
+    }
+  } catch (e) {
+    outputEl.innerHTML = `<div class="out-line"><span class="out-arrow">✗</span><span class="out-error">${e.message}</span></div>`;
+    hasError = true;
+  }
+
+  status.textContent = hasError ? 'error' : 'done';
+  status.style.color = hasError ? 'var(--red)' : 'var(--green)';
+  outputEl.scrollTop = outputEl.scrollHeight;
+
+  if (!hasError) {
+    const validation = lessons[current].validate(code, results);
+    const nextBtn = document.getElementById('next-btn');
+    const challengeEl = document.getElementById('l-challenge');
+
+    if (validation.pass) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = current === lessons.length - 1 ? 'Download App →' : 'Next Lesson →';
+      challengeEl.innerHTML = `<span style="color:var(--green)">✓ Challenge complete!</span>`;
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Complete the challenge';
+      challengeEl.innerHTML = `<strong>Hint:</strong> ${validation.hint}`;
+    }
+  }
+}
+
+function buildSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const label = sidebar.querySelector('.sidebar-label');
+  lessons.forEach((l, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'lesson-btn' + (i === 0 ? ' active' : '');
+    btn.innerHTML = `
+      <div class="lesson-num">${i + 1}</div>
+      <div class="lesson-info">
+        <div class="lesson-name">${l.title}</div>
+        <div class="lesson-tag-small">${l.tag}</div>
+      </div>`;
+    btn.onclick = () => loadLesson(i);
+    sidebar.appendChild(btn);
+  });
+}
+
+document.getElementById('l-editor').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runLesson(); }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = e.target.selectionStart;
+    e.target.value = e.target.value.substring(0, s) + '    ' + e.target.value.substring(e.target.selectionEnd);
+    e.target.selectionStart = e.target.selectionEnd = s + 4;
+  }
+});
+
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX - 6 + 'px';
+  cursor.style.top = e.clientY - 6 + 'px';
+  ring.style.left = e.clientX - 18 + 'px';
+  ring.style.top = e.clientY - 18 + 'px';
+});
+
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(2)'; ring.style.transform = 'scale(1.5)'; });
+  el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; ring.style.transform = 'scale(1)'; });
+});
+
+buildSidebar();
+loadLesson(0);
+</script>
+</body>
+</html>

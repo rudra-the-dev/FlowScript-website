@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowScript — Plain English Programming</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --bg-2: #0f0f1a;
+  --bg-3: #141428;
+  --bg-card: #0d0d1f;
+  --border: #1e1e3a;
+  --border-2: #2a2a50;
+  --accent: #6c63ff;
+  --accent-2: #ff6584;
+  --accent-3: #43e6b5;
+  --text: #e8e8ff;
+  --text-2: #8888bb;
+  --text-3: #444466;
+  --green: #43e6b5;
+  --red: #ff6584;
+  --yellow: #ffd166;
+  --purple: #c77dff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cabinet Grotesk', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+#cursor {
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: screen;
+}
+
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  transition: all 0.15s ease;
+  opacity: 0.4;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: rgba(8,8,16,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 100;
+}
+
+.nav-logo {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent);
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 10px var(--accent); }
+  50% { box-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent); }
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); }
+
+.nav-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.nav-btn:hover {
+  background: #8b85ff;
+  transform: translateY(-1px);
+}
+
+section { padding: 100px 40px; max-width: 1200px; margin: 0 auto; }
+
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 140px;
+  position: relative;
+  max-width: 100%;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 32px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  background: var(--accent-3);
+  border-radius: 50%;
+  animation: pulse 1.5s ease infinite;
+}
+
+h1 {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 700;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.h1-line2 {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--text-2);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 0 30px rgba(108,99,255,0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(108,99,255,0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid var(--border-2);
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.hero-code {
+  margin-top: 80px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 640px;
+  text-align: left;
+  animation: fadeUp 0.6s 0.4s ease both;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+
+.code-titlebar {
+  background: var(--bg-3);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cd-red { background: #ff5f57; }
+.cd-yellow { background: #ffbd2e; }
+.cd-green { background: #28ca41; }
+
+.code-filename {
+  margin-left: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.code-body {
+  padding: 24px;
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  line-height: 2;
+}
+
+.kw { color: var(--purple); }
+.str { color: var(--green); }
+.var { color: var(--yellow); }
+.cmt { color: var(--text-3); }
+.num { color: var(--accent-2); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb-1 {
+  width: 600px; height: 600px;
+  background: rgba(108,99,255,0.08);
+  top: -200px; left: -200px;
+}
+
+.orb-2 {
+  width: 400px; height: 400px;
+  background: rgba(255,101,132,0.06);
+  bottom: 20%; right: -100px;
+}
+
+#hero, #docs, #playground, #commands {
+  position: relative;
+  z-index: 1;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.section-sub {
+  color: var(--text-2);
+  font-size: 17px;
+  line-height: 1.7;
+  max-width: 560px;
+  margin-bottom: 60px;
+}
+
+.commands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.cmd-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.cmd-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.cmd-card:hover {
+  border-color: var(--border-2);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.cmd-card:hover::before { opacity: 1; }
+
+.cmd-tag {
+  display: inline-block;
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.2);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cmd-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.cmd-desc {
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.cmd-code {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+#playground {
+  padding-bottom: 120px;
+}
+
+.playground-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  height: 520px;
+}
+
+.play-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.play-header {
+  background: var(--bg-3);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.play-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.play-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+#run-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.15s;
+}
+
+#run-btn:hover {
+  background: #8b85ff;
+  transform: translateY(-1px);
+}
+
+#run-btn.running {
+  animation: btnPulse 0.6s ease infinite;
+}
+
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(108,99,255,0.4); }
+  50% { box-shadow: 0 0 20px rgba(108,99,255,0.6); }
+}
+
+#editor {
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text);
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  padding: 20px;
+  caret-color: var(--accent);
+  tab-size: 4;
+}
+
+#editor::placeholder { color: var(--text-3); }
+#editor::selection { background: rgba(108,99,255,0.2); }
+
+.example-btns {
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.eg-btn {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: none;
+  transition: all 0.15s;
+  font-family: 'Cabinet Grotesk', sans-serif;
+}
+
+.eg-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#output {
+  flex: 1;
+  padding: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.out-empty {
+  color: var(--text-3);
+  font-size: 13px;
+  margin: auto;
+  text-align: center;
+  line-height: 2;
+}
+
+.out-line { display: flex; gap: 10px; animation: fadeIn 0.1s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.out-arrow { color: var(--text-3); flex-shrink: 0; }
+.out-text { color: var(--green); }
+.out-error { color: var(--red); }
+.out-warn { color: var(--yellow); }
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+footer a { color: var(--accent); text-decoration: none; }
+
+.lessons-wrap {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  min-height: 600px;
+}
+
+.lessons-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lesson-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: none;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+}
+
+.lesson-btn:hover {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+.lesson-btn.active {
+  background: var(--bg-card);
+  border-color: var(--accent);
+}
+
+.lesson-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.lesson-btn.active .lesson-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.lesson-btn.done .lesson-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--bg);
+}
+
+.lesson-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  transition: color 0.15s;
+}
+
+.lesson-btn.active .lesson-name { color: var(--text); }
+
+.lesson-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lesson-header {
+  padding: 28px 32px 0;
+}
+
+.lesson-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.lesson-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.lesson-desc {
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.lesson-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+
+.lesson-editor-wrap {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.lesson-panel-header {
+  padding: 10px 16px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.lesson-panel-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.lesson-run-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.15s;
+}
+
+.lesson-run-btn:hover { background: #8b85ff; }
+
+.lesson-editor {
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text);
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.9;
+  padding: 16px;
+  caret-color: var(--accent);
+  min-height: 200px;
+}
+
+.lesson-output {
+  padding: 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.9;
+  overflow-y: auto;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lesson-footer {
+  padding: 20px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: gap;
+  gap: 16px;
+}
+
+.challenge-text {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.challenge-text strong { color: var(--yellow); }
+
+.lesson-next-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.lesson-next-btn:hover {
+  background: #8b85ff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  #cursor, #cursor-ring { display: none; }
+  body { cursor: auto; }
+  .nav-links { display: none; }
+  section { padding: 80px 20px; }
+  .playground-wrap { grid-template-columns: 1fr; height: auto; }
+  .play-panel { height: 320px; }
+  #output-panel { height: 280px; }
+  .commands-grid { grid-template-columns: 1fr; }
+  footer { padding: 40px 20px; }
+  nav { padding: 0 20px; }
+
+  .lessons-wrap {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .lessons-sidebar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .lesson-btn {
+    padding: 8px 12px;
+    flex: none;
+  }
+
+  .lesson-name {
+    font-size: 12px;
+  }
+
+  .lesson-body {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-editor-wrap {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .lesson-editor {
+    min-height: 160px;
+  }
+
+  .lesson-output {
+    min-height: 140px;
+  }
+
+  .lesson-header {
+    padding: 20px 20px 0;
+  }
+
+  .lesson-footer {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lesson-title {
+    font-size: 22px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="grid-bg"></div>
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+
+<nav>
+  <div class="nav-logo">
+    <img src="icon.svg" width="32" height="32" style="border-radius:8px;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="nav-logo-dot" style="display:none"></div>
+    FlowScript
+  </div>
+  <ul class="nav-links">
+    <li><a href="#learn">Learn</a></li>
+    <li><a href="#commands">Commands</a></li>
+    <li><a href="#automation">Automation</a></li>
+    <li><a href="#playground">Playground</a></li>
+    <li><a href="https://github.com/yourusername/flowscript-app">GitHub</a></li>
+  </ul>
+  <a href="#playground" class="nav-btn">Try it</a>
+</nav>
+
+<div id="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Now available on Android
+  </div>
+  <h1>Code in<br><span class="h1-line2">Plain English</span></h1>
+  <p class="hero-sub">FlowScript is a programming language that reads like English and automates your Android phone. No syntax. No semicolons. Just words.</p>
+  <div class="hero-actions">
+    <a href="#playground" class="btn-primary">Try in browser</a>
+    <a href="https://github.com/yourusername/flowscript-app" class="btn-secondary">Download APK</a>
+  </div>
+  <a href="learn.html" style="margin-top:12px;font-size:14px;color:var(--text-2);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color 0.2s;animation:fadeUp 0.6s 0.35s ease both;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-2)'">
+    Learn FlowScript from scratch →
+  </a>
+  <div class="hero-code">
+    <div class="code-titlebar">
+      <div class="code-dot cd-red"></div>
+      <div class="code-dot cd-yellow"></div>
+      <div class="code-dot cd-green"></div>
+      <span class="code-filename">morning.fs</span>
+    </div>
+    <div class="code-body">
+      <div><span class="cmt"># My morning routine</span></div>
+      <div><span class="kw">create a number called</span> <span class="var">'hour'</span> <span class="kw">with value</span> <span class="num">8</span></div>
+      <div>&nbsp;</div>
+      <div><span class="kw">if</span> <span class="var">'hour'</span> <span class="kw">is greater than</span> <span class="num">6</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">say</span> <span class="str">"Good morning!"</span></div>
+      <div><span class="kw">else:</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">say</span> <span class="str">"Go back to sleep"</span></div>
+      <div><span class="kw">end</span></div>
+      <div>&nbsp;</div>
+      <div><span class="kw">repeat</span> <span class="num">3</span> <span class="kw">times</span> <span class="kw">say</span> <span class="str">"FlowScript rocks"</span></div>
+    </div>
+  </div>
+</div>
+
+<section id="commands">
+  <div class="section-label">Reference</div>
+  <h2 class="section-title">Every command,<br>explained simply</h2>
+  <p class="section-sub">FlowScript has a small, powerful set of commands. Learn them all in under 5 minutes.</p>
+  <div class="commands-grid">
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Output</div>
+      <div class="cmd-title">say</div>
+      <div class="cmd-desc">Print text or a variable to the output.</div>
+      <div class="cmd-code">
+        <span class="kw">say</span> <span class="str">"Hello World"</span><br>
+        <span class="kw">say</span> <span class="var">'name'</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Variables</div>
+      <div class="cmd-title">create</div>
+      <div class="cmd-desc">Create a variable with an initial value. Use single quotes for variable names.</div>
+      <div class="cmd-code">
+        <span class="kw">create a number called</span> <span class="var">'age'</span> <span class="kw">with value</span> <span class="num">20</span><br>
+        <span class="kw">set</span> <span class="var">'age'</span> <span class="kw">to</span> <span class="num">25</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Math</div>
+      <div class="cmd-title">add / subtract / multiply / divide</div>
+      <div class="cmd-desc">Perform math operations on variables.</div>
+      <div class="cmd-code">
+        <span class="kw">add</span> <span class="num">5</span> <span class="kw">to</span> <span class="var">'age'</span><br>
+        <span class="kw">subtract</span> <span class="num">2</span> <span class="kw">from</span> <span class="var">'age'</span><br>
+        <span class="kw">multiply</span> <span class="var">'age'</span> <span class="kw">by</span> <span class="num">2</span><br>
+        <span class="kw">divide</span> <span class="var">'age'</span> <span class="kw">by</span> <span class="num">4</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Conditions</div>
+      <div class="cmd-title">if / elif / else</div>
+      <div class="cmd-desc">Run different code based on conditions. Always close with end.</div>
+      <div class="cmd-code">
+        <span class="kw">if</span> <span class="var">'score'</span> <span class="kw">is greater than</span> <span class="num">90</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">say</span> <span class="str">"Excellent"</span><br>
+        <span class="kw">elif</span> <span class="var">'score'</span> <span class="kw">is greater than</span> <span class="num">70</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">say</span> <span class="str">"Good"</span><br>
+        <span class="kw">else:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">say</span> <span class="str">"Try again"</span><br>
+        <span class="kw">end</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Loops</div>
+      <div class="cmd-title">repeat</div>
+      <div class="cmd-desc">Repeat an action a number of times.</div>
+      <div class="cmd-code">
+        <span class="kw">repeat</span> <span class="num">5</span> <span class="kw">times</span> <span class="kw">say</span> <span class="str">"hello"</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Input</div>
+      <div class="cmd-title">ask</div>
+      <div class="cmd-desc">Ask the user a question and save their answer to a variable.</div>
+      <div class="cmd-code">
+        <span class="kw">ask</span> <span class="str">"What is your name?"</span> <span class="kw">and save to</span> <span class="var">'name'</span><br>
+        <span class="kw">say</span> <span class="var">'name'</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="automation">
+  <div class="section-label">Android Power</div>
+  <h2 class="section-title">Automate anything<br>on your phone</h2>
+  <p class="section-sub">FlowScript controls your Android phone using AI vision. Write what you want to happen in plain English — FlowScript figures out how to do it.</p>
+
+  <div class="commands-grid">
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Messaging</div>
+      <div class="cmd-title">Send WhatsApp messages</div>
+      <div class="cmd-desc">Open WhatsApp, find a contact by name, and send them a message automatically.</div>
+      <div class="cmd-code">
+        <span class="kw">open</span> <span class="str">"WhatsApp"</span><br>
+        <span class="kw">find contact</span> <span class="str">"Mom"</span><br>
+        <span class="kw">send message</span> <span class="str">"On my way home"</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Scheduling</div>
+      <div class="cmd-title">Run at a specific time</div>
+      <div class="cmd-desc">Schedule any automation to run at a set time every day. Runs in the background even when the app is closed.</div>
+      <div class="cmd-code">
+        <span class="kw">every day at</span> <span class="str">"8:00am"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">open</span> <span class="str">"WhatsApp"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">find contact</span> <span class="str">"Mom"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">send message</span> <span class="str">"Good morning!"</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Apps</div>
+      <div class="cmd-title">Open and control any app</div>
+      <div class="cmd-desc">Open any installed app and interact with it using plain English commands.</div>
+      <div class="cmd-code">
+        <span class="kw">open</span> <span class="str">"YouTube"</span><br>
+        <span class="kw">search for</span> <span class="str">"lo-fi beats"</span><br>
+        <span class="kw">tap first result</span><br>
+        <br>
+        <span class="kw">open</span> <span class="str">"Chrome"</span><br>
+        <span class="kw">go to</span> <span class="str">"google.com"</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Triggers</div>
+      <div class="cmd-title">React to phone events</div>
+      <div class="cmd-desc">Run automations automatically when something happens on your phone.</div>
+      <div class="cmd-code">
+        <span class="kw">when battery is below</span> <span class="num">20</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">notify me</span> <span class="str">"Charge your phone"</span><br>
+        <br>
+        <span class="kw">when connected to wifi</span> <span class="str">"Home"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">open</span> <span class="str">"Spotify"</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">Notifications</div>
+      <div class="cmd-title">Send yourself notifications</div>
+      <div class="cmd-desc">Push notifications to your phone from any FlowScript automation.</div>
+      <div class="cmd-code">
+        <span class="kw">notify me</span> <span class="str">"Meeting in 10 minutes"</span><br>
+        <br>
+        <span class="kw">every day at</span> <span class="str">"9:00am"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">notify me</span> <span class="str">"Time to drink water"</span>
+      </div>
+    </div>
+
+    <div class="cmd-card">
+      <div class="cmd-tag">How it works</div>
+      <div class="cmd-title">AI-powered vision</div>
+      <div class="cmd-desc">FlowScript takes a screenshot of your screen, sends it to an AI model, and the AI tells FlowScript exactly what to tap, type, or swipe. Works on any app, any phone.</div>
+      <div class="cmd-code">
+        <span class="cmt">Your code → FlowScript interpreter</span><br>
+        <span class="cmt">→ Screenshot → AI vision model</span><br>
+        <span class="cmt">→ tap X,Y → action performed</span><br>
+        <span class="cmt">→ repeat until task done</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:40px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+    <div style="flex:1;min-width:240px;">
+      <div class="cmd-tag" style="margin-bottom:12px">Note</div>
+      <div style="font-size:15px;color:var(--text-2);line-height:1.7;">Automation commands require the FlowScript Android app installed on your phone. The playground above only runs basic FlowScript — open, send, notify and scheduling commands run on the app only.</div>
+    </div>
+    <a href="https://github.com/yourusername/flowscript-app" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:white;padding:12px 24px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px;white-space:nowrap;align-self:center;">Download APK</a>
+  </div>
+</section>
+
+<section id="playground">
+  <div class="section-label">Playground</div>
+  <h2 class="section-title">Try FlowScript<br>right here</h2>
+  <p class="section-sub">Write FlowScript code and run it instantly in your browser. No install needed.</p>
+
+  <div class="playground-wrap">
+    <div class="play-panel">
+      <div class="play-header">
+        <div class="play-title">
+          <div class="play-dot"></div>
+          main.fs
+        </div>
+        <button id="run-btn" onclick="runCode()">RUN</button>
+      </div>
+      <textarea id="editor" spellcheck="false" placeholder="Write FlowScript here...">say "Welcome to FlowScript"
+
+create a number called 'score' with value 85
+
+if 'score' is greater than 90
+    say "Grade: A"
+elif 'score' is greater than 80
+    say "Grade: B"
+elif 'score' is greater than 70
+    say "Grade: C"
+else:
+    say "Grade: F"
+end
+
+say "Your score was"
+say 'score'
+
+repeat 3 times say "FlowScript is awesome"</textarea>
+      <div class="example-btns">
+        <button class="eg-btn" onclick="loadEx('hello')">Hello World</button>
+        <button class="eg-btn" onclick="loadEx('counter')">Counter</button>
+        <button class="eg-btn" onclick="loadEx('grade')">Grade checker</button>
+        <button class="eg-btn" onclick="loadEx('math')">Math</button>
+      </div>
+    </div>
+
+    <div class="play-panel" id="output-panel">
+      <div class="play-header">
+        <div class="play-title">
+          <div class="play-dot" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+          Output
+        </div>
+        <span id="out-status" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-3)">ready</span>
+      </div>
+      <div id="output">
+        <div class="out-empty">Press RUN to execute<br>your FlowScript code</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>FlowScript — Plain English Programming &nbsp;·&nbsp; <a href="https://github.com/yourusername/flowscript-app">GitHub</a> &nbsp;·&nbsp; MIT License</p>
+  <p style="margin-top:8px">Built with Python, Kivy, and OpenRouter AI</p>
+</footer>
+
+<script>
+const lessons = [
+  {
+    tag: "Lesson 1",
+    title: "Output — say",
+    desc: "Every FlowScript program starts with say. It prints anything you put after it. Text goes inside double quotes. Try running the code to see it work.",
+    code: `say "Hello World"\nsay "I am learning FlowScript"\nsay "This is so easy"`,
+    challenge: "Add a 4th line that says your name."
+  },
+  {
+    tag: "Lesson 2",
+    title: "Input — ask",
+    desc: "Use ask to get input from the user. Save their answer to a variable using single quotes. Then use say to print it back. Text goes in double quotes, variable names in single quotes.",
+    code: `ask "What is your name?" and save to 'name'\nsay 'name'\n\nask "How old are you?" and save to 'age'\nsay 'age'\n\nsay "Nice to meet you"`,
+    challenge: "Ask the user for their favourite colour and print it back to them."
+  },
+  {
+    tag: "Lesson 3",
+    title: "Variables",
+    desc: "Variables store values. Use single quotes around variable names. Create them with create a number called, then use say to print them.",
+    code: `create a number called 'age' with value 18\nsay 'age'\n\nset 'age' to 21\nsay 'age'`,
+    challenge: "Create a variable called 'score' with value 100 and print it."
+  },
+  {
+    tag: "Lesson 4",
+    title: "Math",
+    desc: "FlowScript can do math on variables using plain English. Add, subtract, multiply and divide — all in words.",
+    code: `create a number called 'points' with value 10\n\nadd 5 to 'points'\nsay 'points'\n\nmultiply 'points' by 2\nsay 'points'\n\nsubtract 3 from 'points'\nsay 'points'\n\ndivide 'points' by 2\nsay 'points'`,
+    challenge: "Start with 100, subtract 25, then divide by 5. What do you get?"
+  },
+  {
+    tag: "Lesson 5",
+    title: "Conditions",
+    desc: "Use if, elif and else to make decisions. Always close with end. Comparisons use plain English like is greater than or equals.",
+    code: `create a number called 'score' with value 75\n\nif 'score' is greater than 90\n    say "Grade A"\nelif 'score' is greater than 80\n    say "Grade B"\nelif 'score' is greater than 70\n    say "Grade C"\nelse:\n    say "Grade F"\nend`,
+    challenge: "Change the score to 95 and run again. What grade do you get?"
+  },
+  {
+    tag: "Lesson 6",
+    title: "Loops",
+    desc: "repeat runs a command multiple times. Combine it with variables to count, build patterns, or repeat automations.",
+    code: `repeat 5 times say "FlowScript is awesome"\n\ncreate a number called 'count' with value 1\nrepeat 3 times say 'count'\nadd 1 to 'count'`,
+    challenge: "Make it print your name 10 times."
+  },
+  {
+    tag: "Lesson 7",
+    title: "Automation",
+    desc: "This is where FlowScript becomes powerful. On the Android app, these commands control your phone. The playground shows the structure — install the app to run them for real.",
+    code: `say "This automation will run on your phone"\n\nsay "Step 1 - Open WhatsApp"\nsay "Step 2 - Find contact Mom"\nsay "Step 3 - Send message"\n\nsay "Install the FlowScript app to run this for real!"`,
+    challenge: "You finished all 7 lessons! Download the app and try real automation."
+  }
+];
+
+let currentLesson = 0;
+const completed = new Set();
+
+function loadLesson(idx) {
+  currentLesson = idx;
+  const l = lessons[idx];
+  document.getElementById('l-tag').textContent = l.tag;
+  document.getElementById('l-title').textContent = l.title;
+  document.getElementById('l-desc').textContent = l.desc;
+  document.getElementById('l-editor').value = l.code;
+  document.getElementById('l-challenge').innerHTML = `<strong>Challenge:</strong> ${l.challenge.replace('Challenge: ','')}`;
+  document.getElementById('l-output').innerHTML = '<div class="out-empty" style="margin:auto;color:var(--text-3);font-size:12px;text-align:center;">Press RUN to see output</div>';
+  document.getElementById('l-status').textContent = 'ready';
+  document.getElementById('l-status').style.color = 'var(--text-3)';
+
+  const nextBtn = document.getElementById('l-next-btn');
+  if (idx === lessons.length - 1) {
+    nextBtn.textContent = 'Download App →';
+    nextBtn.onclick = () => window.open('https://github.com/yourusername/flowscript-app', '_blank');
+  } else {
+    nextBtn.textContent = 'Next Lesson →';
+    nextBtn.onclick = nextLesson;
+  }
+
+  document.querySelectorAll('.lesson-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+}
+
+function nextLesson() {
+  completed.add(currentLesson);
+  document.querySelectorAll('.lesson-btn').forEach((btn, i) => {
+    if (completed.has(i)) btn.classList.add('done');
+  });
+  if (currentLesson < lessons.length - 1) loadLesson(currentLesson + 1);
+}
+
+function runLesson() {
+  const code = document.getElementById('l-editor').value.trim();
+  const outputEl = document.getElementById('l-output');
+  const status = document.getElementById('l-status');
+  outputEl.innerHTML = '';
+  const interp = new Interpreter();
+  let hasError = false;
+  try {
+    const results = interp.run(code);
+    if (results.length === 0) {
+      outputEl.innerHTML = '<div style="color:var(--text-3);font-size:12px;margin:auto;text-align:center;">No output</div>';
+    } else {
+      results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'out-line';
+        div.style.animation = 'fadeIn 0.1s ease';
+        const arrow = document.createElement('span');
+        arrow.className = 'out-arrow';
+        arrow.textContent = item.type === 'error' ? '✗' : '›';
+        const text = document.createElement('span');
+        text.className = item.type === 'out' ? 'out-text' : 'out-error';
+        text.textContent = item.text;
+        div.appendChild(arrow);
+        div.appendChild(text);
+        outputEl.appendChild(div);
+        if (item.type === 'error') hasError = true;
+      });
+    }
+  } catch(e) {
+    outputEl.innerHTML = `<div class="out-line"><span class="out-arrow">✗</span><span class="out-error">${e.message}</span></div>`;
+    hasError = true;
+  }
+  status.textContent = hasError ? 'error' : 'done';
+  status.style.color = hasError ? 'var(--red)' : 'var(--green)';
+  outputEl.scrollTop = outputEl.scrollHeight;
+}
+
+function buildSidebar() {
+  const sidebar = document.getElementById('lessons-sidebar');
+  lessons.forEach((l, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'lesson-btn' + (i === 0 ? ' active' : '');
+    btn.innerHTML = `<div class="lesson-num">${i + 1}</div><div class="lesson-name">${l.title}</div>`;
+    btn.onclick = () => loadLesson(i);
+    sidebar.appendChild(btn);
+  });
+}
+
+buildSidebar();
+loadLesson(0);
+
+
+const ring = document.getElementById('cursor-ring');
+
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX - 6 + 'px';
+  cursor.style.top = e.clientY - 6 + 'px';
+  ring.style.left = e.clientX - 18 + 'px';
+  ring.style.top = e.clientY - 18 + 'px';
+});
+
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'scale(2)';
+    ring.style.transform = 'scale(1.5)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'scale(1)';
+    ring.style.transform = 'scale(1)';
+  });
+});
+
+class Interpreter {
+  constructor() { this.variables = {}; this.output = []; }
+
+  run(code) {
+    this.output = [];
+    const lines = code.split('\n');
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i].trim();
+      if (!line || line.startsWith('#')) { i++; continue; }
+      const lower = line.toLowerCase();
+      if (lower.startsWith('if ')) {
+        const block = { branches: [] };
+        const condition = line.slice(3).trim();
+        i++;
+        let body = [];
+        while (i < lines.length) {
+          const p = lines[i].trim();
+          const pl = p.toLowerCase();
+          if (pl.startsWith('elif ') || pl === 'else:' || pl.startsWith('end')) break;
+          if (p && !p.startsWith('#')) body.push(p);
+          i++;
+        }
+        block.branches.push({ condition, body });
+        while (i < lines.length && lines[i].trim().toLowerCase().startsWith('elif ')) {
+          const elifLine = lines[i].trim();
+          const elifCond = elifLine.slice(5).trim();
+          i++;
+          body = [];
+          while (i < lines.length) {
+            const p = lines[i].trim();
+            const pl = p.toLowerCase();
+            if (pl.startsWith('elif ') || pl === 'else:' || pl.startsWith('end')) break;
+            if (p && !p.startsWith('#')) body.push(p);
+            i++;
+          }
+          block.branches.push({ condition: elifCond, body });
+        }
+        if (i < lines.length && lines[i].trim().toLowerCase() === 'else:') {
+          i++;
+          body = [];
+          while (i < lines.length) {
+            const p = lines[i].trim();
+            if (p.toLowerCase().startsWith('end')) break;
+            if (p && !p.startsWith('#')) body.push(p);
+            i++;
+          }
+          block.branches.push({ condition: null, body });
+        }
+        if (i < lines.length && lines[i].trim().toLowerCase().startsWith('end')) i++;
+        this.executeIfBlock(block.branches);
+        continue;
+      }
+      this.executeLine(line);
+      i++;
+    }
+    return this.output;
+  }
+
+  executeLine(line) {
+    const lower = line.toLowerCase();
+    const parts = line.split(/\s+/);
+    if (lower.startsWith('say ')) {
+      const val = this.resolve(line.slice(4).trim());
+      this.output.push({ type: 'out', text: String(val ?? '') });
+    } else if (lower.startsWith('create a') && lower.includes('called')) {
+      const m = line.match(/called\s+'([^']+)'/i);
+      if (!m) return;
+      const name = m[1];
+      const vm = line.match(/with value\s+(\S+)/i);
+      this.variables[name] = vm ? this.tryNum(this.resolve(vm[1])) : null;
+    } else if (lower.startsWith('set ') && lower.includes(' to ')) {
+      const name = parts[1].replace(/'/g,'');
+      this.variables[name] = this.tryNum(this.resolve(parts.slice(3).join(' ')));
+    } else if (lower.startsWith('add ') && lower.includes(' to ')) {
+      const amount = parseFloat(this.resolve(parts[1]));
+      const name = parts[3].replace(/'/g,'');
+      this.variables[name] = (parseFloat(this.variables[name]??0)) + amount;
+      this.clean(name);
+    } else if (lower.startsWith('subtract ') && lower.includes(' from ')) {
+      const amount = parseFloat(this.resolve(parts[1]));
+      const name = parts[3].replace(/'/g,'');
+      this.variables[name] = (parseFloat(this.variables[name]??0)) - amount;
+      this.clean(name);
+    } else if (lower.startsWith('multiply ') && lower.includes(' by ')) {
+      const name = parts[1].replace(/'/g,'');
+      const factor = parseFloat(this.resolve(parts[3]));
+      this.variables[name] = (parseFloat(this.variables[name]??0)) * factor;
+      this.clean(name);
+    } else if (lower.startsWith('divide ') && lower.includes(' by ')) {
+      const name = parts[1].replace(/'/g,'');
+      const div = parseFloat(this.resolve(parts[3]));
+      if (div === 0) { this.output.push({type:'error',text:'Cannot divide by zero'}); return; }
+      this.variables[name] = (parseFloat(this.variables[name]??0)) / div;
+      this.clean(name);
+    } else if (lower.startsWith('repeat ') && lower.includes(' times ')) {
+      const count = parseInt(this.resolve(parts[1].replace(/'/g,'')));
+      const action = line.split(/ times /i).slice(1).join(' times ').trim();
+      for (let i = 0; i < count; i++) this.executeLine(action);
+    } else {
+      this.output.push({type:'warn', text:`Unknown: "${line}"`});
+    }
+  }
+
+  executeIfBlock(branches) {
+    for (const b of branches) {
+      if (b.condition === null) { this.runBody(b.body); return; }
+      if (this.evalCond(b.condition)) { this.runBody(b.body); return; }
+    }
+  }
+
+  runBody(lines) { for (const l of lines) { const t = l.trim(); if (t && !t.startsWith('#')) this.executeLine(t); } }
+
+  evalCond(cond) {
+    const parts = cond.split(/\s+/);
+    try {
+      if (/greater than/i.test(cond)) {
+        const idx = parts.findIndex(p=>p.toLowerCase()==='greater');
+        return parseFloat(this.resolve(parts[0])) > parseFloat(this.resolve(parts[idx+2]));
+      }
+      if (/less than/i.test(cond)) {
+        const idx = parts.findIndex(p=>p.toLowerCase()==='less');
+        return parseFloat(this.resolve(parts[0])) < parseFloat(this.resolve(parts[idx+2]));
+      }
+      if (/\bequals\b/i.test(cond)) {
+        const idx = parts.findIndex(p=>p.toLowerCase()==='equals');
+        return String(this.resolve(parts[0])) === String(this.resolve(parts[idx+1]));
+      }
+      if (/\bis\b/i.test(cond)) {
+        const idx = parts.findIndex(p=>p.toLowerCase()==='is');
+        return String(this.resolve(parts[0])) === String(this.resolve(parts[idx+1]));
+      }
+    } catch(e) { this.output.push({type:'error',text:`Condition error: ${e.message}`}); }
+    return false;
+  }
+
+  resolve(v) {
+    if (v===null||v===undefined) return null;
+    v = String(v).trim();
+    if (v.startsWith('"')&&v.endsWith('"')) return v.slice(1,-1);
+    if (v.startsWith("'")&&v.endsWith("'")) {
+      const n=v.slice(1,-1);
+      if (n in this.variables) return this.variables[n];
+      this.output.push({type:'error',text:`Variable '${n}' not found`});
+      return null;
+    }
+    if (!isNaN(v)&&v!=='') return parseFloat(v);
+    if (v in this.variables) return this.variables[v];
+    return v;
+  }
+
+  tryNum(v) { const n=parseFloat(v); return (!isNaN(n)&&String(v).trim()!=='') ? n : v; }
+  clean(name) { const v=this.variables[name]; if(typeof v==='number'&&Number.isInteger(v)) this.variables[name]=v; }
+}
+
+const examples = {
+  hello: `say "Hello World"\nsay "Welcome to FlowScript"\nsay "Code in plain English"`,
+  counter: `create a number called 'count' with value 1\n\nrepeat 5 times say 'count'\nadd 1 to 'count'\n\nsay "Done!"`,
+  grade: `create a number called 'score' with value 85\n\nif 'score' is greater than 90\n    say "Grade: A"\nelif 'score' is greater than 80\n    say "Grade: B"\nelif 'score' is greater than 70\n    say "Grade: C"\nelse:\n    say "Grade: F"\nend`,
+  math: `create a number called 'x' with value 10\n\nadd 5 to 'x'\nsay 'x'\n\nmultiply 'x' by 3\nsay 'x'\n\ndivide 'x' by 2\nsay 'x'`
+};
+
+function loadEx(name) {
+  document.getElementById('editor').value = examples[name] || '';
+}
+
+function runCode() {
+  const code = document.getElementById('editor').value.trim();
+  const outputEl = document.getElementById('output');
+  const btn = document.getElementById('run-btn');
+  const status = document.getElementById('out-status');
+  if (!code) return;
+
+  btn.classList.add('running');
+  btn.textContent = '...';
+  outputEl.innerHTML = '';
+
+  setTimeout(() => {
+    const interp = new Interpreter();
+    let hasError = false;
+    try {
+      const results = interp.run(code);
+      if (results.length === 0) {
+        outputEl.innerHTML = '<div class="out-empty">No output</div>';
+      } else {
+        results.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'out-line';
+          const arrow = document.createElement('span');
+          arrow.className = 'out-arrow';
+          arrow.textContent = item.type === 'error' ? '✗' : item.type === 'warn' ? '!' : '›';
+          const text = document.createElement('span');
+          text.className = item.type === 'out' ? 'out-text' : item.type === 'error' ? 'out-error' : 'out-warn';
+          text.textContent = item.text;
+          div.appendChild(arrow);
+          div.appendChild(text);
+          outputEl.appendChild(div);
+          if (item.type === 'error') hasError = true;
+        });
+      }
+    } catch(e) {
+      outputEl.innerHTML = `<div class="out-line"><span class="out-arrow">✗</span><span class="out-error">${e.message}</span></div>`;
+      hasError = true;
+    }
+    status.textContent = hasError ? 'error' : 'done';
+    status.style.color = hasError ? 'var(--red)' : 'var(--green)';
+    btn.classList.remove('running');
+    btn.textContent = 'RUN';
+    outputEl.scrollTop = outputEl.scrollHeight;
+  }, 80);
+}
+
+document.getElementById('editor').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode(); }
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = e.target.selectionStart;
+    e.target.value = e.target.value.substring(0,s) + '    ' + e.target.value.substring(e.target.selectionEnd);
+    e.target.selectionStart = e.target.selectionEnd = s + 4;
+  }
+});
+
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX - 6 + 'px';
+  cursor.style.top = e.clientY - 6 + 'px';
+  ring.style.left = e.clientX - 18 + 'px';
+  ring.style.top = e.clientY - 18 + 'px';
+});
+
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'scale(2)';
+    ring.style.transform = 'scale(1.5)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'scale(1)';
+    ring.style.transform = 'scale(1)';
+  });
+});
+
+</script>
+</body>
+</html>
